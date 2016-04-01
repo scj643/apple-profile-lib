@@ -26,47 +26,53 @@ class payloads(config):
         returns = {'Font':plistlib.Data(font),
         'PayloadIdentifier':self.config.rdomain+id,
         'PayloadType':'com.apple.font'}
-        if name:
-            returns['Name']=str(name)
+        if type(name) == str:
+            returns['Name'] = name
         returns = self.common(returns,ident,kwargs)
         self.profile += list(returns)
-        
+
+
     def webclip(self,url,label,fullscreen=None,ident=uid(),icon=None,
                 precomposed=True,removable=True,**kwargs):
         returns = {'PayloadType': 'com.apple.webClip.managed', 'URL': url,
                    'Label': label, 'IsRemovable': removable}
         if icon:
             returns['Icon']=plistlib.Data(icon)
-        if precomposed:
+        if type(precomposed) == bool:
             returns['Precomposed']=precomposed
-        if fullscreen:
+        if type(fullscreen) == bool:
             returns['FullScreen']=fullscreen
         returns = self.common(returns, ident, kwargs)
         print returns
         self.profile += [returns]
         
+    
+    def vpn(name,vtype,alltraffic=False):
+        
     def common(self,content,ident,horg=None,hname=None,hdisc=None,ver=1):
         content['PayloadIdentifier']=self.config.ident + '.' + ident
-        if horg:
+        if type(horg) == str:
             content['PayloadOrganization']=horg
-        if hname:
+        if type(hname) == str:
             content['PayloadDisplayName']=hname
-        if hdisc:
+        if type(hdisc) == str:
             content['PayloadDescription']=hdisc
         content['PayloadUUID']=uid()
         content['PayloadVersion']=ver
         return content
-        
+
 
 def mkplist(payloads,hdesc=None, hname=None, horg=None,rdate=None):
     returns = {'PayloadType': 'Configuration','PayloadVersion': 1,
                'PayloadIdentifier': payloads.config.ident,
                'PayloadUUID': uid()}
-    if hdesc:
+    if type(hdesc) == str:
         returns['PayloadDescription'] = hdesc
-    if hname:
+    if type(hname) == str:
         returns['PayloadDisplayName'] = hname
-    if horg:
+    if type(horg) == str:
         returns['PayloadOrganization'] = horg
+    if type(rdate) == datetime :
+        returns['RemovalDate'] = rdate
     returns['PayloadContent']=payloads.profile
     return returns

@@ -2,7 +2,7 @@
 import BaseHTTPServer
 import sys
 import os
-
+import plistlib
 # Request handler for serving the config profile:
 class ConfigProfileHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     config = None
@@ -22,6 +22,7 @@ def run_server(config):
     httpd = BaseHTTPServer.HTTPServer(server_address, ConfigProfileHandler)
     sa = httpd.socket.getsockname()
     # Point Safari to the local http server:
-    print 'http://localhost:'+sa
+    print('http://localhost:')+str(sa[1])
+    print(sa)
     # Handle a single request, then stop the server:
     httpd.handle_request()

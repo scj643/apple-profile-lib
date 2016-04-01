@@ -11,5 +11,5 @@ try:
 except ImportError:
     binary_support = False
     print('No binary support')
-import main
+import main as profile
 import serve

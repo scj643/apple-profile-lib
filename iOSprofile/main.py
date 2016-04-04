@@ -16,7 +16,7 @@ class Config(object):
         self.ident = self.rdn + '.' + ident
 
 
-class Payloads(Config):
+class Payloads(object):
     def __init__(self, config):
         self.config = config
         self.profile = list()
@@ -44,7 +44,7 @@ class Payloads(Config):
         print returns
         self.profile += [returns]
 
-    def vpn(name, vtype, alltraffic=False):
+    def vpn(self, vpntype, alltraffic=False):
         return
 
     def common(self, content, ident, horg=None, hname=None, hdisc=None, ver=1):

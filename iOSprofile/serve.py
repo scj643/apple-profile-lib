@@ -1,4 +1,5 @@
 # coding: utf-8
+# code by OMZ
 import BaseHTTPServer
 import sys
 import os

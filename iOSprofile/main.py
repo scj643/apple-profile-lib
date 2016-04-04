@@ -2,6 +2,7 @@
 import plistlib
 import uuid
 from datetime import datetime
+from io import BytesIO
 try:
     import Crypto
     Crypto_support = True
@@ -20,7 +21,8 @@ try:
 except ImportError:
     imgsupport = False
     print('No PIL support')
-
+if imgsupport:
+    from PIL import Image
 
 def uid():
     return uuid.uuid4().urn[9:].upper()
@@ -52,27 +54,30 @@ class Payloads(object):
                 precomposed=True, removable=True, **kwargs):
         returns = {'PayloadType': 'com.apple.webClip.managed', 'URL': url,
                    'Label': label, 'IsRemovable': removable}
-        if icon:
-            returns['Icon'] = plistlib.Data(icon)
+        if icon and imgsupport:
+            img = Image.open(icon)
+            data_buffer = BytesIO()
+            img.save(data_buffer, 'PNG')
+            icon_data = data_buffer.getvalue()
+            returns['Icon'] = plistlib.Data(icon_data)
         if type(precomposed) == bool:
             returns['Precomposed'] = precomposed
         if type(fullscreen) == bool:
             returns['FullScreen'] = fullscreen
         returns = self.common(returns, ident, kwargs)
-        print returns
         self.profile += [returns]
 
     def vpn(self, vpntype, alltraffic=False):
         return
 
-    def common(self, content, ident, horg=None, hname=None, hdisc=None, ver=1):
+    def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
         content['PayloadIdentifier'] = self.config.ident + '.' + ident
         if type(horg) == str:
             content['PayloadOrganization'] = horg
         if type(hname) == str:
             content['PayloadDisplayName'] = hname
-        if type(hdisc) == str:
-            content['PayloadDescription'] = hdisc
+        if type(hdesc) == str:
+            content['PayloadDescription'] = hdesc
         content['PayloadUUID'] = uid()
         content['PayloadVersion'] = ver
         return content

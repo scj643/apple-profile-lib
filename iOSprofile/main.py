@@ -2,6 +2,24 @@
 import plistlib
 import uuid
 from datetime import datetime
+try:
+    import Crypto
+    Crypto_support = True
+except ImportError:
+    Crypto_support = False
+    print('No crypto support')
+try:
+    import biplist
+    binary_support = True
+except ImportError:
+    binary_support = False
+    print('No binary support')
+try:
+    import PIL
+    imgsupport = True
+except ImportError:
+    imgsupport = False
+    print('No PIL support')
 
 
 def uid():

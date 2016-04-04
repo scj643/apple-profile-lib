@@ -48,7 +48,8 @@ class payloads(config):
         
     
     def vpn(name,vtype,alltraffic=False):
-        
+        return
+
     def common(self,content,ident,horg=None,hname=None,hdisc=None,ver=1):
         content['PayloadIdentifier']=self.config.ident + '.' + ident
         if type(horg) == str:
@@ -62,9 +63,9 @@ class payloads(config):
         return content
 
 
-def mkplist(payloads,hdesc=None, hname=None, horg=None,rdate=None):
+def mkplist(payloadc,hdesc=None, hname=None, horg=None,rdate=None):
     returns = {'PayloadType': 'Configuration','PayloadVersion': 1,
-               'PayloadIdentifier': payloads.config.ident,
+               'PayloadIdentifier': payloadc.config.ident,
                'PayloadUUID': uid()}
     if type(hdesc) == str:
         returns['PayloadDescription'] = hdesc
@@ -74,5 +75,5 @@ def mkplist(payloads,hdesc=None, hname=None, horg=None,rdate=None):
         returns['PayloadOrganization'] = horg
     if type(rdate) == datetime :
         returns['RemovalDate'] = rdate
-    returns['PayloadContent']=payloads.profile
+    returns['PayloadContent']=payloadc.profile
     return returns

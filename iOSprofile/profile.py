@@ -29,9 +29,14 @@ def uid():
 
 
 class Config(object):
-    def __init__(self, host, ident=uid(), domain='org'):
+    def __init__(self, host, ident=uid(), domain='org', hdesc=None, hname=None, horg=None,
+                 rdate=None):
         self.host = host
         self.domain = domain
+        self.hdesc = hdesc
+        self.hname = hname
+        self.horg = horg
+        self.rdate = rdate
         self.rdn = domain + '.' + host
         self.ident = self.rdn + '.' + ident
 
@@ -99,17 +104,17 @@ class Payloads(object):
         return content
 
 
-def mkplist(payloadc, hdesc=None, hname=None, horg=None, rdate=None):
+def mkplist(payloadc):
     returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1,
                'PayloadIdentifier': payloadc.config.ident,
                'PayloadUUID': uid()}
-    if type(hdesc) == str:
+    if type(payloadc.config.hdesc) == str:
         returns['PayloadDescription'] = hdesc
-    if type(hname) == str:
+    if type(payloadc.config.hname) == str:
         returns['PayloadDisplayName'] = hname
-    if type(horg) == str:
+    if type(payloadc.config.horg) == str:
         returns['PayloadOrganization'] = horg
-    if type(rdate) == datetime:
+    if type(payloadc.config.rdate) == datetime:
         returns['RemovalDate'] = rdate
     returns['PayloadContent'] = payloadc.profile
     return returns

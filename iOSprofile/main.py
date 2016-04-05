@@ -69,6 +69,22 @@ class Payloads(object):
 
     def vpn(self, vpntype, alltraffic=False):
         return
+    
+    def wifi(self, ssid, hidden = False, encryption = 'Any', hotspot = False, autojoin = True,
+             pw = None, ident = uid(), **kwargs):
+        returns = {'PayloadType': 'com.apple.wifi.managed'}
+        if type(ssid) == str:
+            returns['SSID_STR'] = ssid
+        if type(hidden) == bool:
+            returns['HIDDEN_NETWORK'] = hidden
+        if type(autojoin) == bool:
+            returns['AutoJoin'] = autojoin
+        if ['WEP', 'WPA', 'WPA2', 'Any', 'None'].__contains__(encryption):
+            returns['EncryptionType'] = encryption
+        if type(pw) == str:
+            returns['Password'] = pw
+        returns = self.common(returns, ident, kwargs)
+        self.profile += [returns]
 
     def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
         content['PayloadIdentifier'] = self.config.ident + '.' + ident

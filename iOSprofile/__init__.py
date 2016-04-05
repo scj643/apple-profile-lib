@@ -1,3 +1,3 @@
 # coding: utf-8
-import main as profile
+import profile
 import serve

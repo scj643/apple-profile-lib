@@ -91,7 +91,7 @@ class Payloads(object):
         returns = self.common(returns, ident, kwargs)
         self.profile += [returns]
 
-    def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
+    def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1, title=None):
         content['PayloadIdentifier'] = self.config.ident + '.' + ident
         if type(horg) == str:
             content['PayloadOrganization'] = horg
@@ -99,6 +99,8 @@ class Payloads(object):
             content['PayloadDisplayName'] = hname
         if type(hdesc) == str:
             content['PayloadDescription'] = hdesc
+        if type(title) == str:
+            content['title'] = title
         content['PayloadUUID'] = uid()
         content['PayloadVersion'] = ver
         return content

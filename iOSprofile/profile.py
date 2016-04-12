@@ -47,6 +47,7 @@ class Payloads(object):
         self.profile = list()
 
     def font(self, font, ident=uid(), name=None, **kwargs):
+        ident = 'font.'+ ident
         returns = {'Font': plistlib.Data(font),
                    'PayloadIdentifier': self.config.rdomain + id,
                    'PayloadType': 'com.apple.font'}
@@ -57,6 +58,7 @@ class Payloads(object):
 
     def webclip(self, url, label, fullscreen=None, ident=uid(), icon=None,
                 precomposed=True, removable=True, **kwargs):
+        ident = 'webclip.'+ident
         returns = {'PayloadType': 'com.apple.webClip.managed', 'URL': url,
                    'Label': label, 'IsRemovable': removable}
         if icon and imgsupport:
@@ -76,7 +78,8 @@ class Payloads(object):
         return
     
     def wifi(self, ssid, hidden = False, encryption = 'Any', hotspot = False, autojoin = True,
-             pw = None, ident = uid(), **kwargs):
+             pw = None, ident = +uid(), **kwargs):
+        ident = 'wifi.'+ident
         returns = {'PayloadType': 'com.apple.wifi.managed'}
         if type(ssid) == str:
             returns['SSID_STR'] = ssid

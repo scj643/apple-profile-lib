@@ -62,7 +62,10 @@ class Payloads(object):
         returns = {'PayloadType': 'com.apple.webClip.managed', 'URL': url,
                    'Label': label, 'IsRemovable': removable}
         if icon and imgsupport:
-            img = Image.open(icon)
+            if type(icon) == str:
+                img = Image.open(icon)
+            else:
+                img = icon
             data_buffer = BytesIO()
             img.save(data_buffer, 'PNG')
             icon_data = data_buffer.getvalue()
@@ -107,11 +110,12 @@ class Payloads(object):
         content['PayloadVersion'] = ver
         return content
 
-def strippayload(paylods):
+def strippayload(payloads):
     # remove title atribute from payloads
-    for i in payloads:
+    for i in payloads.profile:
         if i.has_key('title'):
             i.__delitem__('title')
+    return payloads
 
 def mkplist(payloadc):
     payloadc = strippayload(payloadc)

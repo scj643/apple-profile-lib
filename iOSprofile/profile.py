@@ -94,7 +94,7 @@ class Payloads(object):
         returns = self.common(returns, ident, kwargs)
         self.profile += [returns]
 
-    def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1, title=None):
+    def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
         content['PayloadIdentifier'] = self.config.ident + '.' + ident
         if type(horg) == str:
             content['PayloadOrganization'] = horg
@@ -102,14 +102,19 @@ class Payloads(object):
             content['PayloadDisplayName'] = hname
         if type(hdesc) == str:
             content['PayloadDescription'] = hdesc
-        if type(title) == str:
-            content['title'] = title
+        content['title'] = self.config.ident + '.' + ident
         content['PayloadUUID'] = uid()
         content['PayloadVersion'] = ver
         return content
 
+def strippayload(paylods):
+    # remove title atribute from payloads
+    for i in payloads:
+        if i.has_key('title'):
+            i.__delitem__('title')
 
 def mkplist(payloadc):
+    payloadc = strippayload(payloadc)
     returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1,
                'PayloadIdentifier': payloadc.config.ident,
                'PayloadUUID': uid()}

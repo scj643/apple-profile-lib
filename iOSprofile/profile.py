@@ -78,7 +78,7 @@ class Payloads(object):
         return
     
     def wifi(self, ssid, hidden = False, encryption = 'Any', hotspot = False, autojoin = True,
-             pw = None, ident = +uid(), **kwargs):
+             pw = None, ident = uid(), **kwargs):
         ident = 'wifi.'+ident
         returns = {'PayloadType': 'com.apple.wifi.managed'}
         if type(ssid) == str:

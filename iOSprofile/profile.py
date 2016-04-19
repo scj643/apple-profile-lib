@@ -117,18 +117,21 @@ def strippayload(payloads):
             i.__delitem__('title')
     return payloads
 
-def mkplist(config, ploads):
-    p = strippayload(ploads)
+def mkplist(pload):
+    '''
+    pload: a Payloads object
+    '''
+    p = strippayload(pload)
     returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1,
-               'PayloadIdentifier': config.ident,
+               'PayloadIdentifier': pload.config.ident,
                'PayloadUUID': uid()}
-    if type(config.hdesc) == str:
-        returns['PayloadDescription'] = config.hdesc
-    if type(config.hname) == str:
-        returns['PayloadDisplayName'] = config.hname
-    if type(config.horg) == str:
-        returns['PayloadOrganization'] = config.horg
-    if type(config.rdate) == datetime:
-        returns['RemovalDate'] = config.rdate
-    returns['PayloadContent'] = p.profile
+    if type(pload.config.hdesc) == str:
+        returns['PayloadDescription'] = pload.config.hdesc
+    if type(pload.config.hname) == str:
+        returns['PayloadDisplayName'] = pload.config.hname
+    if type(pload.config.horg) == str:
+        returns['PayloadOrganization'] = pload.config.horg
+    if type(pload.config.rdate) == datetime:
+        returns['RemovalDate'] = pload.config.rdate
+    returns['PayloadContent'] = pload.profile
     return returns

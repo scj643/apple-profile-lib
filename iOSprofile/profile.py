@@ -80,6 +80,16 @@ class Payloads(object):
     def vpn(self, vpntype, alltraffic=False):
         return
     
+    def certificate(self, certtype, cert, filename=None, password=None, ident=uid(), **kwargs):
+        returns = {}
+        if ['root', 'pkcs1', 'pem', 'pkcs12'].__contains__(certtype):
+            returns['PayloadType'] = 'com.apple.security.' + certtype
+        returns['PayloadContent'] = plistlib.Data(cert)
+        returns['PayloadCertificateFilename'] = filename
+        returns['Password'] = password
+        returns = self.common(returns, ident, kwargs)
+        self.profile += [returns]
+    
     def wifi(self, ssid, hidden = False, encryption = 'Any', hotspot = False, autojoin = True,
              pw = None, ident = uid(), **kwargs):
         ident = 'wifi.'+ident

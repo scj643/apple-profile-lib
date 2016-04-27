@@ -10,14 +10,14 @@ try:
     Crypto_support = True
 except ImportError:
     Crypto_support = False
-    print('No crypto support')
+    print 'No crypto support'
 try:
     import biplist
 
     binary_support = True
 except ImportError:
     binary_support = False
-    print('No binary support')
+    print 'No binary support'
 try:
     import PIL
 
@@ -57,13 +57,13 @@ def typehandle(value, argn, opt=True, rtype=str):
     if opt and isinstance(value, type(None)):
         return
     if rtype == str:
-        rtype = [str,unicode]
-    if isinstance(rtype,list):
+        rtype = [str, unicode]
+    if isinstance(rtype, list):
         for i in rtype:
-            if isinstance(value,i):
+            if isinstance(value, i):
                 return value
     else:
-        if isinstance(value,rtype):
+        if isinstance(value, rtype):
             return value
         else:
             raise ParamInvalid(argn, rtype)
@@ -160,7 +160,7 @@ class Payloads(object):
         returns['SSID_STR'] = typehandle(ssid, 'ssid', rtype=bool)
         returns['HIDDEN_NETWORK'] = typehandle(hidden, 'hidden', rtype=bool)
         returns['AutoJoin'] = typehandle(autojoin, 'autojoim', rtype=bool)
-        if ['WEP', 'WPA', 'WPA2', 'Any', 'None'].__contains__(encryption):
+        if encryption in ['WEP', 'WPA', 'WPA2', 'Any', 'None']:
             returns['EncryptionType'] = encryption
         returns['Password'] = typehandle(pw, 'password')
         returns = self.common(returns, ident, kwargs)
@@ -168,7 +168,6 @@ class Payloads(object):
         self.profile += [striped]
 
     def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
-        print content
         content['PayloadIdentifier'] = self.config.ident + '.' + ident
         content['PayloadOrganization'] = typehandle(horg, 'horg', )
         content['PayloadDisplayName'] = typehandle(hname, 'hname')
@@ -180,10 +179,10 @@ class Payloads(object):
 
 
 def strippayload(payloads):
-    # remove title atribute from payloads
+    # remove title attribute from payloads
     for i in payloads.profile:
-        if i.has_key('title'):
-            i.__delitem__('title')
+        if 'title' in i:
+            del i['title']
     return payloads
 
 

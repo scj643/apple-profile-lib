@@ -24,6 +24,39 @@ except ImportError:
 if imgsupport:
     from PIL import Image
 
+
+# Defining Exceptions
+class ParamInvalid(Exception):
+    """Exception raised for invalid param type.
+
+    Attributes:
+        atrib -- paramater missing
+    """
+
+    def __init__(self, atrib, etype):
+        self.atrib = atrib
+        self.etype = etype
+    def __str__(self):
+        return 'Argument ' + repr(self.atrib) +' is wrong type should be ' + repr(self.etype)
+
+
+def typehandle(value, argn, opt=True, rtype=str):
+    """Helper for handling argument verification
+
+    Attributes:
+        value -- value to be tested
+        argn  -- name of argument
+        opt   -- is value option
+        rtype -- type to be matched to (can be list of types or just a type)
+    """
+    if type(value) == rtype:
+        return value
+    elif type(value) == type(None) and opt:
+        return value
+    else:
+        raise ParamInvalid(argn, rtype)
+
+
 def uid():
     return uuid.uuid4().urn[9:].upper()
 
@@ -31,11 +64,11 @@ def uid():
 class Config(object):
     def __init__(self, host, ident=uid(), domain='org', hdesc=None, hname=None, horg=None,
                  rdate=None):
-        self.host = host
-        self.domain = domain
-        self.hdesc = hdesc
-        self.hname = hname
-        self.horg = horg
+        self.host = typehandle(host,'host',False)
+        self.domain = typehandle(domain,'domain')
+        self.hdesc = typehandle(hdesc,'hdesc')
+        self.hname = typehandle(hname,'hname')
+        self.horg = typehandle(horg,'horg')
         self.rdate = rdate
         self.rdn = domain + '.' + host
         self.ident = self.rdn + '.' + ident
@@ -43,16 +76,17 @@ class Config(object):
 
 class Payloads(object):
     def __init__(self, config):
-        self.config = config
+        self.config = typehandle(config,'comfig',False,type(Config('t')))
         self.profile = list()
 
     def font(self, font, ident=uid(), name=None, **kwargs):
         ident = 'font.'+ ident
-        returns = {'Font': plistlib.Data(font),
-                   'PayloadIdentifier': self.config.rdomain + id,
-                   'PayloadType': 'com.apple.font'}
-        if type(name) == str:
-            returns['Name'] = name
+        returns = {'PayloadType': 'com.apple.font'}
+        if font:
+            returns['Font'] = plistlib.Data(font)
+        else:
+            return
+        returns['Name'] = typehandle(name,'name')
         returns = self.common(returns, ident, kwargs)
         self.profile += list(returns)
 
@@ -70,10 +104,8 @@ class Payloads(object):
             img.save(data_buffer, 'PNG')
             icon_data = data_buffer.getvalue()
             returns['Icon'] = plistlib.Data(icon_data)
-        if type(precomposed) == bool:
-            returns['Precomposed'] = precomposed
-        if type(fullscreen) == bool:
-            returns['FullScreen'] = fullscreen
+        returns['Precomposed'] = typehandle(precomposed,'precomposed',rtype=bool)
+        returns['FullScreen'] = typehandle(fullscreen,'fullscreen',rtype=bool)
         returns = self.common(returns, ident, kwargs)
         self.profile += [returns]
 
@@ -84,9 +116,14 @@ class Payloads(object):
         returns = {}
         if ['root', 'pkcs1', 'pem', 'pkcs12'].__contains__(certtype):
             returns['PayloadType'] = 'com.apple.security.' + certtype
-        returns['PayloadContent'] = plistlib.Data(cert)
-        returns['PayloadCertificateFilename'] = filename
-        returns['Password'] = password
+        else:
+            return
+        if cert:
+            returns['PayloadContent'] = plistlib.Data(cert)
+        else:
+            return
+        returns['PayloadCertificateFilename'] = typehandle(filename,'filename')
+        returns['Password'] = typehandle(password,'password')
         returns = self.common(returns, ident, kwargs)
         self.profile += [returns]
     
@@ -94,27 +131,20 @@ class Payloads(object):
              pw = None, ident = uid(), **kwargs):
         ident = 'wifi.'+ident
         returns = {'PayloadType': 'com.apple.wifi.managed'}
-        if type(ssid) == str:
-            returns['SSID_STR'] = ssid
-        if type(hidden) == bool:
-            returns['HIDDEN_NETWORK'] = hidden
-        if type(autojoin) == bool:
-            returns['AutoJoin'] = autojoin
+        returns['SSID_STR'] = typehandle(ssid,'ssid',rtype=bool)
+        returns['HIDDEN_NETWORK'] = typehandle(hidden,'hidden',rtype=bool)
+        returns['AutoJoin'] = typehandle(autojoin,'autojoim',rtype=bool)
         if ['WEP', 'WPA', 'WPA2', 'Any', 'None'].__contains__(encryption):
             returns['EncryptionType'] = encryption
-        if type(pw) == str:
-            returns['Password'] = pw
+        returns['Password'] = typehandle(pw, 'password')
         returns = self.common(returns, ident, kwargs)
         self.profile += [returns]
 
     def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
         content['PayloadIdentifier'] = self.config.ident + '.' + ident
-        if type(horg) == str:
-            content['PayloadOrganization'] = horg
-        if type(hname) == str:
-            content['PayloadDisplayName'] = hname
-        if type(hdesc) == str:
-            content['PayloadDescription'] = hdesc
+        content['PayloadOrganization'] = typehandle(horg,'horg')
+        content['PayloadDisplayName'] = typehandle(hname,'hname')
+        content['PayloadDescription'] = typehandle(hdesc,'hdesc')
         content['title'] = self.config.ident + '.' + ident
         content['PayloadUUID'] = uid()
         content['PayloadVersion'] = ver
@@ -135,13 +165,11 @@ def mkplist(pload):
     returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1,
                'PayloadIdentifier': pload.config.ident,
                'PayloadUUID': uid()}
-    if type(pload.config.hdesc) == str:
-        returns['PayloadDescription'] = pload.config.hdesc
-    if type(pload.config.hname) == str:
-        returns['PayloadDisplayName'] = pload.config.hname
-    if type(pload.config.horg) == str:
-        returns['PayloadOrganization'] = pload.config.horg
-    if type(pload.config.rdate) == datetime:
+    
+    returns['PayloadDescription'] = typehandle(pload.config.hdesc,'hdesc')
+    returns['PayloadDisplayName'] = typehandle(pload.config.hname,'hdesc')
+    returns['PayloadOrganization'] = typehandle(pload.config.horg,'horg')
+    if pload.config.rdate:
         returns['RemovalDate'] = pload.config.rdate
     returns['PayloadContent'] = pload.profile
     return returns

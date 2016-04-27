@@ -15,8 +15,7 @@ class ConfigProfileHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         plist_string = plistlib.writePlistToString(ConfigProfileHandler.config)
         s.wfile.write(plist_string)
     def log_message(self, format, *args):
-        
-         pass
+        pass
 
 def run_server(config):
     ConfigProfileHandler.config = config
@@ -24,7 +23,11 @@ def run_server(config):
     httpd = BaseHTTPServer.HTTPServer(server_address, ConfigProfileHandler)
     sa = httpd.socket.getsockname()
     # Point Safari to the local http server:
-    print('http://')+str(socket.gethostbyname(socket.gethostname()))+':'+str(sa[1])
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except socket.gaierror:
+        ip = socket.gethostbyname(socket.getfqdn()+'.local')
+    print('http://')+ip+':'+str(sa[1])
     print(sa)
     # Handle a single request, then stop the server:
     httpd.handle_request()

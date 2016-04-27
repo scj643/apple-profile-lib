@@ -49,6 +49,9 @@ def typehandle(value, argn, opt=True, rtype=str):
         opt   -- is value option
         rtype -- type to be matched to (can be list of types or just a type)
     """
+    if rtype == str:
+        if type(value) == unicode:
+            return value
     if type(value) == rtype:
         return value
     elif type(value) == type(None) and opt:

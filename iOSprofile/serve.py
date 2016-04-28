@@ -26,8 +26,12 @@ def run_server(config):
     try:
         ip = socket.gethostbyname(socket.gethostname())
     except socket.gaierror:
-        ip = socket.gethostbyname(socket.getfqdn()+'.local')
+        try:
+            ip = socket.gethostbyname(socket.getfqdn()+'.local')
+        except socket.gaierror:
+            ip = '127.0.0.1'
     print('http://')+ip+':'+str(sa[1])
     print(sa)
+    print locals()
     # Handle a single request, then stop the server:
     httpd.handle_request()

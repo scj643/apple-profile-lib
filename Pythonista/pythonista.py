@@ -92,8 +92,10 @@ def editpayload(payload):
     return payload
 
 def main():
+    c = None
     while True:
-        if setup():
+        c = setup()
+        if c:
             break
     conf = profile.Config(**c)
     pload = profile.Payloads(conf)

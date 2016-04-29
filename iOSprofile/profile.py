@@ -42,7 +42,7 @@ class ParamInvalid(Exception):
         self.etype = etype
 
     def __str__(self):
-        return 'Argument ' + repr(self.atrib) + ' is wrong type should be ' + repr(self.etype)
+        return 'Argument {!r} is wrong type should be {!r}.'.format(self.atrib, self.etype)
 
 
 def typehandle(value, argn, opt=True, rtype=str):
@@ -54,19 +54,13 @@ def typehandle(value, argn, opt=True, rtype=str):
     :param rtype: Type that the value should be (Defaults to str/unicode)
     :return: Value if success, ParamInvalid if failed
     """
-    if opt and isinstance(value, type(None)):
+    if opt and value is None:
         return
     if rtype == str:
-        rtype = [str, unicode]
-    if isinstance(rtype, list):
-        for i in rtype:
-            if isinstance(value, i):
-                return value
-    else:
-        if isinstance(value, rtype):
-            return value
-        else:
-            raise ParamInvalid(argn, rtype)
+        rtype = (str, unicode)  # isinstance can take a tuple as the second parameter
+    if isinstance(value, rtype):
+        return value
+    raise ParamInvalid(argn, rtype)
 
 
 def strip(indict):
@@ -75,8 +69,7 @@ def strip(indict):
     :param indict: Dictionary to be striped
     :return: Striped dictionary
     """
-    outdict = {k: v for k, v in indict.items() if v is not None}
-    return outdict
+    return {k: v for k, v in indict.items() if v is not None}
 
 
 def uid():
@@ -105,10 +98,9 @@ class Payloads(object):
     def font(self, font, ident=uid(), name=None, **kwargs):
         ident = 'font.' + ident
         returns = {'PayloadType': 'com.apple.font'}
-        if font:
-            returns['Font'] = plistlib.Data(font)
-        else:
+        if not font:
             return
+        returns['Font'] = plistlib.Data(font)
         returns['Name'] = typehandle(name, 'name')
         returns = self.common(returns, ident, kwargs)
         striped = strip(returns)
@@ -120,10 +112,7 @@ class Payloads(object):
         returns = {'PayloadType': 'com.apple.webClip.managed', 'URL': url,
                    'Label': label, 'IsRemovable': removable}
         if icon and imgsupport:
-            if type(icon) == str:
-                img = Image.open(icon)
-            else:
-                img = icon
+            img = Image.open(icon) if isinstance(icon, str) else icon
             data_buffer = BytesIO()
             img.save(data_buffer, 'PNG')
             icon_data = data_buffer.getvalue()
@@ -139,19 +128,14 @@ class Payloads(object):
 
     def certificate(self, certtype, cert, filename=None, password=None, ident=uid(), **kwargs):
         returns = {}
-        if ['root', 'pkcs1', 'pem', 'pkcs12'].__contains__(certtype):
-            returns['PayloadType'] = 'com.apple.security.' + certtype
-        else:
+        if not cert or not certtype in ('root', 'pkcs1', 'pem', 'pkcs12'):
             return
-        if cert:
-            returns['PayloadContent'] = plistlib.Data(cert)
-        else:
-            return
+        returns['PayloadType'] = 'com.apple.security.' + certtype
+        returns['PayloadContent'] = plistlib.Data(cert)
         returns['PayloadCertificateFilename'] = typehandle(filename, 'filename')
         returns['Password'] = typehandle(password, 'password')
         returns = self.common(returns, ident, kwargs)
-        striped = strip(returns)
-        self.profile += [striped]
+        self.profile += [strip(returns)]
 
     def wifi(self, ssid, hidden=False, encryption='Any', hotspot=False, autojoin=True,
              pw=None, ident=uid(), **kwargs):
@@ -160,7 +144,7 @@ class Payloads(object):
         returns['SSID_STR'] = typehandle(ssid, 'ssid', rtype=bool)
         returns['HIDDEN_NETWORK'] = typehandle(hidden, 'hidden', rtype=bool)
         returns['AutoJoin'] = typehandle(autojoin, 'autojoim', rtype=bool)
-        if encryption in ['WEP', 'WPA', 'WPA2', 'Any', 'None']:
+        if encryption in ('WEP', 'WPA', 'WPA2', 'Any', 'None'):
             returns['EncryptionType'] = encryption
         returns['Password'] = typehandle(pw, 'password')
         returns = self.common(returns, ident, kwargs)
@@ -181,8 +165,7 @@ class Payloads(object):
 def strippayload(payloads):
     # remove title attribute from payloads
     for i in payloads.profile:
-        if 'title' in i:
-            del i['title']
+        i.pop('title', None)
     return payloads
 
 

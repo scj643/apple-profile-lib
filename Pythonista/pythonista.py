@@ -7,8 +7,7 @@ import photos
 import plistlib
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..'))
-from iOSprofile import profile
-from iOSprofile import serve
+from iOSprofile import profile, serve
 
 common_form = [{'title':'Ident', 'type':'text', 'autocorrection':False,
           'autocapitalization':ui.AUTOCAPITALIZE_NONE,'key':'ident'},
@@ -60,15 +59,14 @@ def setup():
         print 'Canceled'
         return
     # remove keys with empty values
-    for i in r.keys():
-        if type(r[i]) == str:
-            if len(r[i]) == 0:
-                r.__delitem__(i)
+    for i in r:
+        if r[i] == '':
+            r.pop(i)
     # Check to make sure we got a host name
-    if not r.__contains__('host'):
-        print 'No host name'
-        return
-    return r
+    if 'host' in r:
+        return r
+    print 'No host name'
+    return None
 
 def editpayload(payload):
     editing = True
@@ -77,7 +75,6 @@ def editpayload(payload):
         choice = dialogs.list_dialog('Profile',mainops)
         if choice == None:
             editing == False
-            return payload
         if choice['title'] == 'Edit':
             payload.profile = dialogs.edit_list_dialog('Edit Profiles', payload.profile)
         if choice['title'] == 'Add Webclip':
@@ -92,17 +89,15 @@ def editpayload(payload):
             name = name + '.mobileconfig'
             cpload = profile.mkplist(conf, pload)
             plistlib.writePlist(cpload, name)
-    return
+    return payload
 
 def main():
-    c = None
-    while c == None:
-        c = setup()
+    while True:
+        if setup():
+            break
     conf = profile.Config(**c)
     pload = profile.Payloads(conf)
-    return [pload,conf]
+    return [pload, conf]
     
-p = main()
-pload= p[0]
-conf = p[1]
+pload, conf = main()
 editpayload(pload)

@@ -93,7 +93,7 @@ def editpayload(payload):
 
 def main():
     c = None
-    while c == None:
+    while c is None:
         c = setup()
     conf = profile.Config(**c)
     pload = profile.Payloads(conf)

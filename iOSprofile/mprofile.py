@@ -57,18 +57,10 @@ def typehandle(value, argn, opt=True, rtype=str):
     if opt and isinstance(value, type(None)):
         return
     if rtype == str:
-        rtype = [str, unicode]
-    if isinstance(rtype, list):
-        for i in rtype:
-            if isinstance(value, i):
-                return value
-        else:
-            raise ParamInvalid(argn, rtype)
-    else:
-        if isinstance(value, rtype):
-            return value
-        else:
-            raise ParamInvalid(argn, rtype)
+        rtype = (str, unicode)  # isinstance can take a tuple as the second parameter
+    if isinstance(value,rtype):
+        return value
+    raise ParamInvalid(argn, rtype)
 
 
 def strip(indict):
@@ -141,10 +133,10 @@ class Payloads(object):
 
     def certificate(self, certtype, cert, filename=None, password=None, ident=uid(), **kwargs):
         returns = {}
-        if ['root', 'pkcs1', 'pem', 'pkcs12'].__contains__(certtype):
-            returns['PayloadType'] = 'com.apple.security.' + certtype
-        else:
+        if not cert or not certtype in ('root', 'pkcs1', 'pem', 'pkcs12'):
             return
+        returns['PayloadType'] = 'com.apple.security.' + certtype
+        returns['PayloadContent'] = plistlib.Data(cert)
         if cert:
             returns['PayloadContent'] = plistlib.Data(cert)
         else:

@@ -4,7 +4,8 @@ This library allows you to create and verify iOS mobileconfig files right on you
 
 ## Requirements
 It will work with just the standard library for the most part.
-To encrypt a profile Crypto and biplist is needed.
+
+To encrypt a profile __Crypto__ and __biplist__ are needed.
 
 # ToDo
 * [ ] implement some more config types

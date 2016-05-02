@@ -11,6 +11,7 @@ try:
 except ImportError:
     Crypto_support = False
     print 'No crypto support'
+
 try:
     import biplist
 
@@ -18,6 +19,7 @@ try:
 except ImportError:
     binary_support = False
     print 'No binary support'
+
 try:
     import PIL
 
@@ -46,7 +48,8 @@ class ParamInvalid(Exception):
             self.atype = 'unkown'
 
     def __str__(self):
-        return 'Argument ' + repr(self.atrib) + ' is wrong type should be ' + repr(self.etype) + ' is ' + repr(self.atype)
+        return 'Argument ' + repr(self.atrib) + ' is wrong type should be ' + repr(self.etype) + ' is ' + repr(
+            self.atype)
 
 
 def typehandle(value, argn, opt=True, rtype=str):
@@ -62,7 +65,7 @@ def typehandle(value, argn, opt=True, rtype=str):
         return
     if rtype == str:
         rtype = (str, unicode)  # isinstance can take a tuple as the second parameter
-    if isinstance(value,rtype):
+    if isinstance(value, rtype):
         return value
     raise ParamInvalid(argn, rtype, value)
 
@@ -137,7 +140,7 @@ class Payloads(object):
 
     def certificate(self, certtype, cert, filename=None, password=None, ident=uid(), **kwargs):
         returns = {}
-        if not cert or not certtype in ('root', 'pkcs1', 'pem', 'pkcs12'):
+        if not cert or certtype not in ('root', 'pkcs1', 'pem', 'pkcs12'):
             return
         returns['PayloadType'] = 'com.apple.security.' + certtype
         returns['PayloadContent'] = plistlib.Data(cert)
@@ -154,10 +157,9 @@ class Payloads(object):
     def wifi(self, ssid, hidden=False, encryption='Any', hotspot=False, autojoin=True,
              pw=None, ident=uid(), **kwargs):
         ident = 'wifi.' + ident
-        returns = {'PayloadType': 'com.apple.wifi.managed'}
-        returns['SSID_STR'] = typehandle(ssid, 'ssid', rtype=bool)
-        returns['HIDDEN_NETWORK'] = typehandle(hidden, 'hidden', rtype=bool)
-        returns['AutoJoin'] = typehandle(autojoin, 'autojoim', rtype=bool)
+        returns = {'PayloadType': 'com.apple.wifi.managed', 'SSID_STR': typehandle(ssid, 'ssid', rtype=bool),
+                   'HIDDEN_NETWORK': typehandle(hidden, 'hidden', rtype=bool),
+                   'AutoJoin': typehandle(autojoin, 'autojoim', rtype=bool)}
         if encryption in ['WEP', 'WPA', 'WPA2', 'Any', 'None']:
             returns['EncryptionType'] = encryption
         returns['Password'] = typehandle(pw, 'password')
@@ -191,13 +193,11 @@ def mkplist(pload):
     :return: Dict representation of plist
     """
     p = strippayload(pload)
-    returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1,
-               'PayloadIdentifier': pload.config.ident,
-               'PayloadUUID': uid()}
+    returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1, 'PayloadIdentifier': pload.config.ident,
+               'PayloadUUID': uid(), 'PayloadDescription': typehandle(pload.config.hdesc, 'hdesc'),
+               'PayloadDisplayName': typehandle(pload.config.hname, 'hdesc'),
+               'PayloadOrganization': typehandle(pload.config.horg, 'horg')}
 
-    returns['PayloadDescription'] = typehandle(pload.config.hdesc, 'hdesc')
-    returns['PayloadDisplayName'] = typehandle(pload.config.hname, 'hdesc')
-    returns['PayloadOrganization'] = typehandle(pload.config.horg, 'horg')
     if pload.config.rdate:
         returns['RemovalDate'] = pload.config.rdate
     returns['PayloadContent'] = pload.profile

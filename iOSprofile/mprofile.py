@@ -37,12 +37,16 @@ class ParamInvalid(Exception):
         atrib -- paramater missing
     """
 
-    def __init__(self, atrib, etype):
+    def __init__(self, atrib, etype, atype=None):
         self.atrib = atrib
         self.etype = etype
+        if atype:
+            self.atype = type(atype)
+        else:
+            self.atype = 'unkown'
 
     def __str__(self):
-        return 'Argument ' + repr(self.atrib) + ' is wrong type should be ' + repr(self.etype)
+        return 'Argument ' + repr(self.atrib) + ' is wrong type should be ' + repr(self.etype) + ' is ' + repr(self.atype)
 
 
 def typehandle(value, argn, opt=True, rtype=str):
@@ -60,7 +64,7 @@ def typehandle(value, argn, opt=True, rtype=str):
         rtype = (str, unicode)  # isinstance can take a tuple as the second parameter
     if isinstance(value,rtype):
         return value
-    raise ParamInvalid(argn, rtype)
+    raise ParamInvalid(argn, rtype, value)
 
 
 def strip(indict):
@@ -104,7 +108,7 @@ class Payloads(object):
         else:
             return
         returns['Name'] = typehandle(name, 'name')
-        returns = self.common(returns, ident, kwargs)
+        returns = self.common(returns, ident, **kwargs)
         striped = strip(returns)
         self.profile += [striped]
 
@@ -124,7 +128,7 @@ class Payloads(object):
             returns['Icon'] = plistlib.Data(icon_data)
         returns['Precomposed'] = typehandle(precomposed, 'precomposed', rtype=bool)
         returns['FullScreen'] = typehandle(fullscreen, 'fullscreen', rtype=bool)
-        returns = self.common(returns, ident, kwargs)
+        returns = self.common(returns, ident, **kwargs)
         striped = strip(returns)
         self.profile += [striped]
 
@@ -143,7 +147,7 @@ class Payloads(object):
             return
         returns['PayloadCertificateFilename'] = typehandle(filename, 'filename')
         returns['Password'] = typehandle(password, 'password')
-        returns = self.common(returns, ident, kwargs)
+        returns = self.common(returns, ident, **kwargs)
         striped = strip(returns)
         self.profile += [striped]
 
@@ -157,7 +161,7 @@ class Payloads(object):
         if encryption in ['WEP', 'WPA', 'WPA2', 'Any', 'None']:
             returns['EncryptionType'] = encryption
         returns['Password'] = typehandle(pw, 'password')
-        returns = self.common(returns, ident, kwargs)
+        returns = self.common(returns, ident, **kwargs)
         striped = strip(returns)
         self.profile += [striped]
 

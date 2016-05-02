@@ -95,7 +95,7 @@ class Config(object):
         self.horg = typehandle(horg, 'horg')
         self.rdate = rdate
         self.rdn = domain + '.' + host
-        self.ident = rdn + '.' + ident
+        self.ident = self.rdn + '.' + ident
 
 
 class Payloads(object):

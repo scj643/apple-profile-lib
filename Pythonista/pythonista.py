@@ -7,7 +7,7 @@ import photos
 import plistlib
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..'))
-from iOSprofile import profile, serve
+from iOSprofile import mprofile, serve
 
 common_form = [{'title':'Ident', 'type':'text', 'autocorrection':False,
           'autocapitalization':ui.AUTOCAPITALIZE_NONE,'key':'ident'},
@@ -81,12 +81,12 @@ def editpayload(payload):
         if choice['title'] == 'Add Wifi':
             wifi(payload)
         if choice['title'] == 'Serve':
-            cpload = profile.mkplist(payload)
+            cpload = mprofile.mkplist(payload)
             serve.run_server(cpload)
         if choice['title'] == 'Save':
             name = dialogs.input_alert('File name')
             name = name + '.mobileconfig'
-            cpload = profile.mkplist(conf, pload)
+            cpload = mprofile.mkplist(pload)
             plistlib.writePlist(cpload, name)
     return payload
 
@@ -94,8 +94,8 @@ def main():
     c = None
     while c is None:
         c = setup()
-    conf = profile.Config(**c)
-    pload = profile.Payloads(conf)
+    conf = mprofile.Config(**c)
+    pload = mprofile.Payloads(conf)
     return [pload, conf]
     
 pload, conf = main()

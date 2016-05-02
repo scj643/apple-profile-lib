@@ -59,9 +59,7 @@ def setup():
         print 'Canceled'
         return
     # remove keys with empty values
-    for i in r:
-        if r[i] == '':
-            r.pop(i)
+    r={k: v for k, v in r.items() if v is not None}
     # Check to make sure we got a host name
     if 'host' in r:
         return r
@@ -75,6 +73,7 @@ def editpayload(payload):
         choice = dialogs.list_dialog('Profile',mainops)
         if choice == None:
             editing == False
+            return payload
         if choice['title'] == 'Edit':
             payload.profile = dialogs.edit_list_dialog('Edit Profiles', payload.profile)
         if choice['title'] == 'Add Webclip':

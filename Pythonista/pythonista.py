@@ -59,7 +59,7 @@ def setup():
         print 'Canceled'
         return
     # remove keys with empty values
-    r={k: v for k, v in r.items() if v is not None}
+    r={k: v for k, v in r.items() if v is not '' or None}
     # Check to make sure we got a host name
     if 'host' in r:
         return r

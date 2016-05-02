@@ -6,6 +6,9 @@ This library allows you to create and verify iOS mobileconfig files right on you
 It will work with just the standard library for the most part.
 To encrypt a profile Crypto and biplist is needed.
 
-#ToDo
-Still need to implement some more config types and find out how to sign and encrypt
-I found out how to sign with OpenSSL but not encrypt https://developer.apple.com/library/ios/featuredarticles/iPhoneConfigurationProfileRef/Introduction/Introduction.html is the documentation
+# ToDo
+* [ ] implement some more config types
+* [x] find out how to sign
+* [ ] find out how to encrypt
+
+I found out how to sign with OpenSSL but not how to encrypt.  See the docs at: https://developer.apple.com/library/ios/featuredarticles/iPhoneConfigurationProfileRef/Introduction/Introduction.html

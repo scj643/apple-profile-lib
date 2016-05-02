@@ -62,6 +62,8 @@ def typehandle(value, argn, opt=True, rtype=str):
         for i in rtype:
             if isinstance(value, i):
                 return value
+        else:
+            raise ParamInvalid(argn, rtype)
     else:
         if isinstance(value, rtype):
             return value
@@ -93,7 +95,7 @@ class Config(object):
         self.horg = typehandle(horg, 'horg')
         self.rdate = rdate
         self.rdn = domain + '.' + host
-        self.ident = self.rdn + '.' + ident
+        self.ident = rdn + '.' + ident
 
 
 class Payloads(object):

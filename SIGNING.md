@@ -1,5 +1,5 @@
 # Encrypt
-I think this is hwo it might be done
+I think this is how it might be done
 ```
 openssl smime -encrypt -aes256 -outform pem -in payload.tmp -out payload-enc.tmp enckey.pem 
 ```

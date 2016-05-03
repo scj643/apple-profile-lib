@@ -87,6 +87,7 @@ def editpayload(payload):
             name = dialogs.input_alert('File name')
             name = name + '.mobileconfig'
             cpload = mprofile.mkplist(pload)
+            cpload = mprofile.strip(cpload)
             plistlib.writePlist(cpload, name)
     return payload
 

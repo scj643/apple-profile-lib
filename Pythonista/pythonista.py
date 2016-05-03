@@ -9,6 +9,9 @@ ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..'))
 from iOSprofile import mprofile, serve
 
+def stripestring(indict):
+    return {k: v for k, v in indict.items() if v is not ''}
+
 common_form = [{'title':'Ident', 'type':'text', 'autocorrection':False,
           'autocapitalization':ui.AUTOCAPITALIZE_NONE,'key':'ident'},
          {'title':'Description', 'type':'text', 'autocorrection':True, 'key':'hdesc'},
@@ -29,7 +32,7 @@ def webclip(payload):
     if returns['icon']:
         returns['icon'] = photos.pick_image(True)
     if returns:
-        payload.webclip(**returns)
+        payload.webclip(**stripestring(returns))
 
 def wifi(payload):
     form = [{'title':'ssid', 'type':'text', 'key':'ssid', 'autocorrection':False,
@@ -41,7 +44,7 @@ def wifi(payload):
             {'title':'Password', 'key':'pw', 'type':'password'}] + common_form
     returns = dialogs.form_dialog('Wifi',form)
     if returns:
-        payload.webclip(**returns)
+        payload.webclip(**stripestring(returns))
 
 def setup():
     d = [{'title':'Host', 'type':'text','autocorrection':False,
@@ -95,7 +98,7 @@ def main():
     c = None
     while c is None:
         c = setup()
-    conf = mprofile.Config(**c)
+    conf = mprofile.Config(**stripestring(c))
     pload = mprofile.Payloads(conf)
     return [pload, conf]
     

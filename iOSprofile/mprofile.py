@@ -55,6 +55,8 @@ class ParamInvalid(Exception):
 def typehandle(value, argn, opt=True, rtype=str):
     """Handles verifying type checks
 
+    :type argn: str
+    :type rtype: type
     :param value: The value to be checked
     :param argn: The name of the argument to pass if an exception occurs
     :param opt: Bool if the variable is optional
@@ -99,7 +101,10 @@ class Config(object):
 
 class Payloads(object):
     def __init__(self, config):
-        # noinspection PyTypeChecker
+        """
+
+        :type config: Config
+        """
         self.config = typehandle(config, 'comfig', False, Config)
         self.profile = []
 

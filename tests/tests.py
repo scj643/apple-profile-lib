@@ -5,13 +5,14 @@ import plistlib
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..'))
 from iOSprofile import mprofile, serve
+if sys.version_info[0] >= 3:
+    unicode = str
 import unittest
 
 class TestConfMaker(unittest.TestCase):
     def setUp(self):
         self.invhost = 32
         self.host = 'scj643'
-        self.url = 'http://google.com'
     
     def test_conf_str(self):
         mprofile.Config(self.host)

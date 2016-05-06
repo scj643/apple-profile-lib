@@ -6,7 +6,8 @@ import ui
 import photos
 import plistlib
 ROOT_PATH = os.path.dirname(__file__)
-sys.path.append(os.path.join(ROOT_PATH, '..'))
+mpath = os.path.abspath(os.path.join(ROOT_PATH, '..'))
+sys.path.insert(0,mpath)
 from iOSprofile import mprofile, serve
 
 def stripestring(indict):
@@ -59,14 +60,14 @@ def setup():
           'autocapitalization':ui.AUTOCAPITALIZE_NONE, 'key':'hname'}]
     r = dialogs.form_dialog('Setup',d)
     if r == None:
-        print 'Canceled'
+        print('Canceled')
         return
     # remove keys with empty values
     r={k: v for k, v in r.items() if v is not '' or None}
     # Check to make sure we got a host name
     if 'host' in r:
         return r
-    print 'No host name'
+    print('No host name')
     return None
 
 def editpayload(payload):

@@ -3,14 +3,15 @@ import plistlib
 import uuid
 from datetime import datetime
 from io import BytesIO
-
+import sys
+if sys.version_info[0] >= 3:
+    unicode = type(str())
 try:
     import Crypto
-
     Crypto_support = True
 except ImportError:
     Crypto_support = False
-    print 'No crypto support'
+    print('No crypto support')
 
 try:
     import biplist
@@ -18,7 +19,7 @@ try:
     binary_support = True
 except ImportError:
     binary_support = False
-    print 'No binary support'
+    print('No binary support')
 
 try:
     import PIL

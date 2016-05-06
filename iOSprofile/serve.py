@@ -1,12 +1,15 @@
 # coding: utf-8
-# code by OMZ
-import BaseHTTPServer
+# parts by OMZ
 import sys
 import os
+try:
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+except ImportError:
+    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import plistlib
 import socket
 # Request handler for serving the config profile:
-class ConfigProfileHandler (BaseHTTPServer.BaseHTTPRequestHandler):
+class ConfigProfileHandler (BaseHTTPRequestHandler):
     config = None
     def do_GET(s):
         s.send_response(200)
@@ -20,7 +23,7 @@ class ConfigProfileHandler (BaseHTTPServer.BaseHTTPRequestHandler):
 def run_server(config):
     ConfigProfileHandler.config = config
     server_address = ('', 0)
-    httpd = BaseHTTPServer.HTTPServer(server_address, ConfigProfileHandler)
+    httpd = HTTPServer(server_address, ConfigProfileHandler)
     sa = httpd.socket.getsockname()
     # Point Safari to the local http server:
     try:
@@ -30,8 +33,7 @@ def run_server(config):
             ip = socket.gethostbyname(socket.getfqdn()+'.local')
         except socket.gaierror:
             ip = '127.0.0.1'
-    print('http://')+ip+':'+str(sa[1])
+    print(('http://')+ip+':'+str(sa[1]))
     print(sa)
-    print locals()
     # Handle a single request, then stop the server:
     httpd.handle_request()

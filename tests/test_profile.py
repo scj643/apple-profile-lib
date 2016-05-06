@@ -2,6 +2,8 @@
 import os
 import sys
 import pytest
+if sys.version_info[0]<=3:
+    unicode = str
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..'))
 from iOSprofile import mprofile, serve

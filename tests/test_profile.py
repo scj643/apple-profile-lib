@@ -10,8 +10,8 @@ from iOSprofile import mprofile, serve
 
 
 invhost = 32
-host = 'scj643'
-url = 'http://google.com'
+host = 'test'
+
     
 def test_conf_str():
     mprofile.Config(host)
@@ -25,4 +25,6 @@ def test_conf_invalid():
     with pytest.raises(mprofile.ParamInvalid):
         mprofile.Config(invhost)
             
-
+def test_missing_args():
+    with pytest.raises(TypeError):
+        mprofile.Config()

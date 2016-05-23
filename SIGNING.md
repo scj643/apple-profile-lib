@@ -1,7 +1,7 @@
 # Encrypt
 I think this is how it might be done
 ```
-openssl smime -encrypt -aes256 -outform pem -in payload.tmp -out payload-enc.tmp enckey.pem 
+openssl smime -encrypt -aes256 -outform der -in payload.tmp -out payload-enc.tmp enckey.pem 
 ```
 # Sign
 ```

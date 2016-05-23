@@ -73,7 +73,7 @@ def typehandle(value, argn, opt=True, rtype=str):
     raise ParamInvalid(argn, rtype, value)
 
 
-def strip(indict):
+def stripdict(indict):
     """Strips keys with a value of None from a dict
 
     :param indict: Dictionary to be striped
@@ -134,7 +134,7 @@ class Payloads(object):
             return
         returns['Name'] = typehandle(name, 'name')
         returns = self.common(returns, ident, **kwargs)
-        striped = strip(returns)
+        striped = stripdict(returns)
         self.profile += [striped]
 
     def webclip(self, url, label, fullscreen=None, ident=uid(), icon=None,
@@ -154,7 +154,7 @@ class Payloads(object):
         returns['Precomposed'] = typehandle(precomposed, 'precomposed', rtype=bool)
         returns['FullScreen'] = typehandle(fullscreen, 'fullscreen', rtype=bool)
         returns = self.common(returns, ident, **kwargs)
-        striped = strip(returns)
+        striped = stripdict(returns)
         self.profile += [striped]
 
     def vpn(self, vpntype, alltraffic=False):
@@ -173,7 +173,7 @@ class Payloads(object):
         returns['PayloadCertificateFilename'] = typehandle(filename, 'filename')
         returns['Password'] = typehandle(password, 'password')
         returns = self.common(returns, ident, **kwargs)
-        striped = strip(returns)
+        striped = stripdict(returns)
         self.profile += [striped]
 
     def wifi(self, ssid, hidden=False, encryption='Any', hotspot=False, autojoin=True,
@@ -186,7 +186,7 @@ class Payloads(object):
             returns['EncryptionType'] = encryption
         returns['Password'] = typehandle(pw, 'password')
         returns = self.common(returns, ident, **kwargs)
-        striped = strip(returns)
+        striped = stripdict(returns)
         self.profile += [striped]
 
     def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
@@ -223,4 +223,5 @@ def mkplist(pload):
     if pload.config.rdate:
         returns['RemovalDate'] = pload.config.rdate
     returns['PayloadContent'] = pload.profile
+    returns = stripdict(returns)
     return returns

@@ -98,7 +98,12 @@ class Config(object):
         self.rdate = rdate
         self.rdn = domain + '.' + host
         self.ident = self.rdn + '.' + ident
-
+    
+    def __str__(self):
+        return self.ident
+    
+    def __repr__(self):
+        return self.ident
 
 class Payloads(object):
     def __init__(self, config):
@@ -108,6 +113,17 @@ class Payloads(object):
         """
         self.config = typehandle(config, 'comfig', False, Config)
         self.profile = []
+        
+    def __str__(self):
+        return 'Payloads of {}'.format(self.config.ident)
+    
+    def __repr__(self):
+        items = ''
+        for i in self.profile:
+            if type(i) == dict:
+                if i['PayloadIdentifier']:
+                    items += '{}\n'.format(i['PayloadIdentifier'])
+        return items.rstrip('\n')
 
     def font(self, font, ident=uid(), name=None, **kwargs):
         ident = 'font.' + ident

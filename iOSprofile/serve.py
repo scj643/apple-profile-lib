@@ -8,6 +8,8 @@ except ImportError:
     from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import plistlib
 import socket
+if sys.version_info[0] >= 3:
+    plistlib.writePlistToString = plistlib.writePlistToBytes
 # Request handler for serving the config profile:
 class ConfigProfileHandler (BaseHTTPRequestHandler):
     config = None

@@ -45,7 +45,7 @@ def wifi(payload):
             {'title':'Password', 'key':'pw', 'type':'password'}] + common_form
     returns = dialogs.form_dialog('Wifi',form)
     if returns:
-        payload.webclip(**stripestring(returns))
+        payload.wifi(**stripestring(returns))
 
 def setup():
     d = [{'title':'Host', 'type':'text','autocorrection':False,

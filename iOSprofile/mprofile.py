@@ -1,11 +1,11 @@
 # coding: utf-8
 import plistlib
-import uuid
+import uuid as u
 from datetime import datetime
 from io import BytesIO
 import sys
-if sys.version_info[0] >= 3:
-    unicode = type(str())
+
+
 try:
     import Crypto
     Crypto_support = True
@@ -14,20 +14,13 @@ except ImportError:
     print('No crypto support')
 
 try:
-    import biplist
-
-    binary_support = True
-except ImportError:
-    binary_support = False
-    print('No binary support')
-
-try:
     import PIL
 
     imgsupport = True
 except ImportError:
     imgsupport = False
     print('No PIL support')
+
 if imgsupport:
     from PIL import Image
 
@@ -52,176 +45,73 @@ class ParamInvalid(Exception):
         return 'Argument ' + repr(self.atrib) + ' is wrong type should be ' + repr(self.etype) + ' is ' + repr(
             self.atype)
 
-
-def typehandle(value, argn, opt=True, rtype=str):
-    """Handles verifying type checks
-
-    :type argn: str
-    :type rtype: type
-    :param value: The value to be checked
-    :param argn: The name of the argument to pass if an exception occurs
-    :param opt: Bool if the variable is optional
-    :param rtype: Type that the value should be (Defaults to str/unicode)
-    :return: Value if success, ParamInvalid if failed
-    """
-    if opt and isinstance(value, type(None)):
-        return
-    if rtype == str:
-        rtype = (str, unicode)  # isinstance can take a tuple as the second parameter
-    if isinstance(value, rtype):
-        return value
-    raise ParamInvalid(argn, rtype, value)
-
-
-def stripdict(indict):
+def strip_dict(indict):
     """Strips keys with a value of None from a dict
 
     :param indict: Dictionary to be striped
     :return: Striped dictionary
     """
-    outdict = {k: v for k, v in indict.items() if v is not None}
-    return outdict
+    out_dict = {k: v for k, v in indict.items() if v is not None}
+    return out_dict
 
 
 def uid():
-    return uuid.uuid4().urn[9:].upper()
+    return u.uuid4().urn[9:].upper()
 
 
-class Config(object):
-    def __init__(self, host, ident=uid(), domain='org', hdesc=None, hname=None, horg=None,
-                 rdate=None):
-        self.host = typehandle(host, 'host', False)
-        self.domain = typehandle(domain, 'domain')
-        self.hdesc = typehandle(hdesc, 'hdesc')
-        self.hname = typehandle(hname, 'hname')
-        self.horg = typehandle(horg, 'horg')
-        self.rdate = rdate
-        self.rdn = domain + '.' + host
-        self.ident = self.rdn + '.' + ident
-    
-    def __str__(self):
-        return self.ident
-    
-    def __repr__(self):
-        return self.ident
-
-class Payloads(object):
-    def __init__(self, config):
-        """
-
-        :type config: Config
-        """
-        self.config = typehandle(config, 'comfig', False, Config)
-        self.profile = []
-        
-    def __str__(self):
-        return 'Payloads of {}'.format(self.config.ident)
-    
-    def __repr__(self):
-        items = ''
-        for i in self.profile:
-            if type(i) == dict:
-                if i['PayloadIdentifier']:
-                    items += '{}\n'.format(i['PayloadIdentifier'])
-        return items.rstrip('\n')
-
-    def font(self, font, ident=uid(), name=None, **kwargs):
-        ident = 'font.' + ident
-        returns = {'PayloadType': 'com.apple.font'}
-        if font:
-            returns['Font'] = plistlib.Data(font)
-        else:
-            return
-        returns['Name'] = typehandle(name, 'name')
-        returns = self.common(returns, ident, **kwargs)
-        striped = stripdict(returns)
-        self.profile += [striped]
-
-    def webclip(self, url, label, fullscreen=None, ident=uid(), icon=None,
-                precomposed=True, removable=True, **kwargs):
-        ident = 'webclip.' + ident
-        returns = {'PayloadType': 'com.apple.webClip.managed', 'URL': url,
-                   'Label': label, 'IsRemovable': removable}
-        if icon and imgsupport:
-            if type(icon) == str:
-                img = Image.open(icon)
-            else:
-                img = icon
-            data_buffer = BytesIO()
-            img.save(data_buffer, 'PNG')
-            icon_data = data_buffer.getvalue()
-            returns['Icon'] = plistlib.Data(icon_data)
-        returns['Precomposed'] = typehandle(precomposed, 'precomposed', rtype=bool)
-        returns['FullScreen'] = typehandle(fullscreen, 'fullscreen', rtype=bool)
-        returns = self.common(returns, ident, **kwargs)
-        striped = stripdict(returns)
-        self.profile += [striped]
-
-    def vpn(self, vpntype, alltraffic=False):
-        return
-
-    def certificate(self, certtype, cert, filename=None, password=None, ident=uid(), **kwargs):
-        returns = {}
-        if not cert or certtype not in ('root', 'pkcs1', 'pem', 'pkcs12'):
-            return
-        returns['PayloadType'] = 'com.apple.security.' + certtype
-        returns['PayloadContent'] = plistlib.Data(cert)
-        if cert:
-            returns['PayloadContent'] = plistlib.Data(cert)
-        else:
-            return
-        returns['PayloadCertificateFilename'] = typehandle(filename, 'filename')
-        returns['Password'] = typehandle(password, 'password')
-        returns = self.common(returns, ident, **kwargs)
-        striped = stripdict(returns)
-        self.profile += [striped]
-
-    def wifi(self, ssid, hidden=False, encryption='Any', hotspot=False, autojoin=True,
-             pw=None, ident=uid(), **kwargs):
-        ident = 'wifi.' + ident
-        returns = {'PayloadType': 'com.apple.wifi.managed', 'SSID_STR': typehandle(ssid, 'ssid', rtype=bool),
-                   'HIDDEN_NETWORK': typehandle(hidden, 'hidden', rtype=bool),
-                   'AutoJoin': typehandle(autojoin, 'autojoim', rtype=bool)}
-        if encryption in ['WEP', 'WPA', 'WPA2', 'Any', 'None']:
-            returns['EncryptionType'] = encryption
-        returns['Password'] = typehandle(pw, 'password')
-        returns = self.common(returns, ident, **kwargs)
-        striped = stripdict(returns)
-        self.profile += [striped]
-
-    def common(self, content, ident, horg=None, hname=None, hdesc=None, ver=1):
-        content['PayloadIdentifier'] = self.config.ident + '.' + ident
-        content['PayloadOrganization'] = typehandle(horg, 'horg', )
-        content['PayloadDisplayName'] = typehandle(hname, 'hname')
-        content['PayloadDescription'] = typehandle(hdesc, 'hdesc')
-        content['title'] = self.config.ident + '.' + ident
-        content['PayloadUUID'] = uid()
-        content['PayloadVersion'] = ver
-        return content
-
-
-def strippayload(payloads):
-    # remove title attribute from payloads
-    for i in payloads.profile:
-        if 'title' in i:
-            del i['title']
-    return payloads
-
-
-def mkplist(pload):
-    """Turns a Payloads object into a plist
-
-    :param pload: The Payloads object
-    :return: Dict representation of plist
+class Profile(object):
     """
-    p = strippayload(pload)
-    returns = {'PayloadType': 'Configuration', 'PayloadVersion': 1, 'PayloadIdentifier': pload.config.ident,
-               'PayloadUUID': uid(), 'PayloadDescription': typehandle(pload.config.hdesc, 'hdesc'),
-               'PayloadDisplayName': typehandle(pload.config.hname, 'hdesc'),
-               'PayloadOrganization': typehandle(pload.config.horg, 'horg')}
+    A Mobile Configuration Profile object
+    """
+    def __init__(self, identifier, uuid=uid(), description = None, display_name = None, organization = None,  expiration_date=None,
+                 removal_date = None, duration_till_removal = None, scope = None, consent_text = None):
+        """
+        Note: Docstrings taken partly from
+        https://developer.apple.com/library/content/featuredarticles/iPhoneConfigurationProfileRef/Introduction/Introduction.html
+        :param identifier: A RDNS identifier (com.example.profile) Used to tell if a profile should be replaced or added
+        :type identifier: str
+        :param uuid: A unique identifier for the profile
+        :type uuid: str
+        :param description: Optional; A description shown in the detail screen for the profile Should be descriptive enough to let
+        the user know if it should be installed
+        :type description: str
+        :param display_name: Optional; A human-readable name. displayed on the Detail screen. Doesn't have to be unique
+        :type display_name: str
+        :param organization: Optional; Human readable string that has the name of the organization that provided this profile
+        :type organization: str
+        :param expiration_date: Optional; A date when the profile is considered to have expired and can be updated OTA (Only used in OTA deliver)
+        :type expiration_date: datetime
+        :param removal_date: Optional; Date which the profile will be removed
+        :type removal_date: datetime
+        :param duration_till_removal: Optional; Number of seconds until the profile is auto removed
+        :type duration_till_removal: float
+        :param scope: Optional; Determines if payload should be installed for the system or user (used for keys typically)
+                                valid options are user and system (MacOS only)
+        :type scope: str
+        :param consent_text: Optional; A dictionary containing consent or license agreemnet
+                                       using the keys for each language region and a defualt key
+                                       EX
+                                       {'default', 'you agree to the terms provided with this profile'}
+        :type consent_text: dict
+        """
+        self.PayloadDescription = description
+        self.PayloadDisplayName = display_name
+        self.PayloadExpirationDate = expiration_date
+        self.PayloadIdentifier = identifier
+        self.PayloadOrganization = organization
+        self.PayloadUUID = uuid
+        self.PayloadType = "Configuration"
+        self.PayloadVersion = 1
+        self.PayloadScope = scope
+        self.RemovalDate = removal_date
+        self.DurationUntilRemoval = duration_till_removal
+        self.ConsentText = consent_text
 
-    if pload.config.rdate:
-        returns['RemovalDate'] = pload.config.rdate
-    returns['PayloadContent'] = pload.profile
-    returns = stripdict(returns)
-    return returns
+    def strip(self):
+        out_dict = {}
+        for i in self.__dict__:
+            if self.__dict__[i]:
+                out_dict[i] = self.__dict__[i]
+        return out_dict
+
+
